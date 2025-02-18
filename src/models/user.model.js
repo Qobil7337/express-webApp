@@ -12,7 +12,6 @@ const User = sequelize.define(
         balance: {
             type: DataTypes.FLOAT,
             allowNull: false,
-            defaultValue: 0.0
         }
     }
 )

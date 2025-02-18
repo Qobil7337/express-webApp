@@ -1,15 +1,29 @@
 const User = require('../models/user.model')
-
-const getUserById = async (id) => {
-    return await User.findByPk(id)
+const sequelize = require('../models/index')
+const getUserById = async (id, transaction = null) => {
+    return await User.findByPk(id, { transaction })
 }
 const updateBalance = async (id, amount) => {
-    const user = await getUserById(id)
-    if (!user) throw new Error("User not found")
-    if (user.balance + amount < 0) throw new Error("Balance cannot be negative")
-    user.balance += amount
-    await user.save()
-    return user
+    try {
+        return await sequelize.transaction(async (t) => {
+            let user = await getUserById(id)
+
+            if (!user) throw new Error("User not found")
+
+            user = await User.findByPk(id, { transaction: t, lock: t.LOCK.UPDATE })
+            if (!user) throw new Error("User not found within transaction")
+
+            if (user.balance + amount < 0) throw new Error("Balance cannot be negative")
+
+            user.balance += amount;
+            await user.save({ transaction: t })
+
+            return user;
+        })
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
 }
 
 module.exports = { updateBalance }
