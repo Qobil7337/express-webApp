@@ -5,7 +5,7 @@ const seedInitialUser = require("../seeders/initial-user");
 
 const umzug = new Umzug({
     migrations: {
-        glob: path.join(__dirname, '[0-9]*-*.js')
+        glob: ['*-*.js', { cwd: __dirname, ignore: ['**/migration.js'] }]
     },
     storage: new SequelizeStorage({ sequelize }),
     context: sequelize.getQueryInterface(),
@@ -13,16 +13,21 @@ const umzug = new Umzug({
 })
 
 const runMigrations = async () => {
+    try {
+        const migrations = await umzug.pending()
+        console.log('Pending migrations:', migrations)
 
-    const migrations = await umzug.pending()
-
-    if (migrations.length > 0) {
-        console.log('Running migrations...')
-        await umzug.up()
-        console.log('Migrations completed')
-        await seedInitialUser()
-    } else {
-        console.log('No pending migrations')
+        if (migrations.length > 0) {
+            console.log('Running migrations...')
+            await umzug.up()
+            console.log('Migrations completed')
+            await seedInitialUser()
+        } else {
+            console.log('No pending migrations')
+        }
+    } catch (error) {
+        console.error('Migration error:', error)
+        throw error
     }
 }
 
