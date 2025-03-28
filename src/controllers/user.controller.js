@@ -7,11 +7,12 @@ const updateBalance = async (req, res) => {
             return res.status(400).json({ message: "Invalid request data" })
         }
 
-        const user = await userService.updateBalance(userId, amount)
-        res.json({
-            message: `Balance ${amount > 0 ? 'increased' : 'decreased'}`,
-            balance: user.balance
-        })
+        const result = await userService.updateBalance(userId, amount)
+        if (!result.success) {
+            return res.status(400).json({ message: "Insufficient balance" }) // Explicit failure
+        }
+
+        res.status(200).json({ message: "Balance updated successfully" })
 
     } catch (e) {
         res.status(500).json({ message: e.message })

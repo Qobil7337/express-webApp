@@ -10,8 +10,9 @@ const updateBalance = async (id, amount) => {
         }
     )
 
-    if (!updatedRows) throw new Error("User not found or insufficient balance")
-
+    if (!updatedRows) {
+        return { success: false, message: "Insufficient balance" } // Indicate failure
+    }
     return updatedUser
 }
 
