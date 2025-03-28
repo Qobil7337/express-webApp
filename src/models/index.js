@@ -12,10 +12,10 @@ const sequelize = new Sequelize(
         dialect: process.env.DB_DIALECT || 'postgres',
         logging: false,
         pool: {
-            max: 100,
-            min: 5,
-            acquire: 30000,
-            idle: 10000
+            max: 500,
+            min: 50,
+            acquire: 60000,
+            idle: 20000
         }
     }
 )
